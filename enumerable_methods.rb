@@ -214,12 +214,9 @@ module Enumerable
   end
 end
 
-# ############################################################################
-
-# ***************************     multiply_els    ****************************
-
-# #############################################################################
-
 def multiply_els(arr)
-  arr.my_inject(1) { |acc, sum| acc * sum }
+  arr.my_inject { |acc, cn| acc * cn }
 end
+
+# rubocop:enable Metrics/CyclomaticComplexity
+# rubocop:enable Metrics/PerceivedComplexity
