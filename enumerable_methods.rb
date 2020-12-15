@@ -1,132 +1,251 @@
-# rubocop:disable Metrics/CyclomaticComplexity
-# rubocop:disable Metrics/PerceivedComplexity
-
 module Enumerable
-  # my_each
+  # ############################################################################
+
+  # ***************************     my_each     ********************************
+
+  # ############################################################################
+
   def my_each
-    return to_enum(:each) unless block_given?
+    return to_enum(:my_each) unless block_given?
 
-    arr = *self
-    size.times do |i|
-      yield arr[i]
+    ind = 0
+
+    while ind != to_a.length
+      yield to_a[ind]
+      ind += 1
     end
+
     self
   end
 
-  # my_each_with_index
+  # ############################################################################
+
+  # ***********************     my_each_with_endex     *************************
+
+  # ############################################################################
+
   def my_each_with_index
-    return to_enum(:each) unless block_given?
+    return to_enum(:my_each_with_index) unless block_given?
 
-    arr = *self
-    size.times do |i|
-      yield arr[i], i
+    index = 0
+
+    my_each do |el|
+      yield(el, index)
+      index += 1
     end
+
     self
   end
 
-  # my_select
+  # ############################################################################
+
+  # ***************************     my_select     ******************************
+
+  # ############################################################################
+
   def my_select
     return to_enum(:my_select) unless block_given?
 
-    arr = []
-    my_each { |el| arr.push(el) if yield el }
-    arr
-  end
+    filtered = []
 
-  # my_all
-  def my_all?(my_arg = nil)
-    if block_given?
-      to_a.my_each { |el| return false if yield(el) == false }
-      return true
-    elsif my_arg.nil?
-      to_a.my_each { |el| return false if el.nil? || el == false }
-    elsif !my_arg.nil? && (my_arg.is_a? Class)
-      to_a.my_each { |el| return false unless [el.class, el.class.superclass].include?(my_arg) }
-    elsif !my_arg.nil? && my_arg.instance_of?(Regexp)
-      to_a.my_each { |el| return false unless my_arg.match(el) }
+    if self.class == Hash
+      filtered = {}
+
+      my_each do |el|
+        key = el [0]
+        value = el [1]
+        filtered [key] = value if yield(el[0])
+      end
+
+      filtered
+
     else
-      to_a.my_each { |el| return false if el != my_arg }
+
+      filtered = []
+
+      my_each do |el|
+        filtered.push(el) if yield(el)
+      end
     end
-    true
+
+    filtered
   end
 
-  # my_any
-  def my_any?(my_arg = nil)
-    if block_given?
-      to_a.my_each { |el| return true if yield(el) }
-      return false
-    elsif my_arg.nil?
-      to_a.my_each { |el| return true if el }
-    elsif !my_arg.nil? && (my_arg.is_a? Class)
-      to_a.my_each { |el| return true if [el.class, el.class.superclass].include?(my_arg) }
-    elsif !my_arg.nil? && my_arg.instance_of?(Regexp)
-      to_a.my_each { |el| return true if my_arg.match(el) }
+  # ############################################################################
+
+  # ***************************     my_all     *********************************
+
+  # ############################################################################
+
+  def my_all?(arg = nil)
+    output = false
+
+    filtered_array = if !arg # no arguments
+
+                       block_given? ? my_select { |el| yield(el) } : my_select { |el| el }
+                     elsif arg.is_a?(Regexp)
+
+                       my_select { |el| arg == el }
+
+                     elsif arg.is_a?(Class)
+                       # if argument is not empty then checking if arg is Class or object value
+                       my_select { |el| el.class <= arg }
+                     else
+                       my_select { |el| el == arg }
+                     end
+    output = true if filtered_array == to_a
+    output
+  end
+
+  # ############################################################################
+
+  # ***************************     my_any     *********************************
+
+  # ############################################################################
+
+  def my_any?(arg = nil)
+    output = false
+
+    filtered_array = if !arg # no arguments
+
+                       block_given? ? my_select { |el| yield(el) } : my_select { |el| el }
+                     elsif arg.is_a?(Regexp)
+
+                       my_select { |el| arg == el }
+
+                     elsif arg.is_a?(Class)
+                       # if argument is not empty then checking if arg is Class or object value
+                       my_select { |el| el.class <= arg }
+                     else
+                       my_select { |el| el == arg }
+                     end
+    output = true unless filtered_array.to_a.empty?
+    output
+  end
+
+  # ############################################################################
+
+  # ***************************     my_none     ********************************
+
+  # ############################################################################
+
+  def my_none?(arg = nil)
+    output = false
+
+    filtered_array = if !arg
+
+                       block_given? ? my_select { |el| yield(el) } : my_select { |el| el }
+                     elsif arg.is_a?(Regexp)
+
+                       my_select { |el| arg == el }
+
+                     elsif arg.is_a?(Class)
+                       my_select { |el| el.class <= arg }
+                     else
+                       my_select { |el| el == arg }
+                     end
+
+    output = true if filtered_array.to_a.empty?
+    output
+  end
+
+  # ############################################################################
+
+  # ***************************     my_count     *******************************
+
+  # ############################################################################
+
+  def my_count(num = nil)
+    if num
+      selected = my_select { |el| el == num }
+      selected.length
     else
-      to_a.my_each { |el| return true if el == my_arg }
+      return to_a.length unless block_given?
+
+      count = 0
+
+      my_each do |el|
+        yield(el) && count += 1
+      end
+      count
     end
-    false
   end
 
-  # my_none
-  def my_none?(my_arg = nil)
-    my_each { |el| return false if el } if !block_given? && my_arg.nil?
+  # ############################################################################
 
-    my_each { |el| return false if yield(el) } if block_given?
+  # ***************************     my_map     *********************************
 
-    if my_arg.is_a?(Class)
-      my_each { |el| return false if el.is_a?(my_arg) }
-    elsif my_arg.is_a?(Regexp)
-      my_each { |el| return false if el.to_s.match(my_arg) }
-    elsif !my_arg.nil?
-      my_each { |el| return false if el == my_arg }
-    end
-    true
-  end
+  # ############################################################################
 
-  # my_count
-  def my_count(my_arg = nil)
-    count = 0
-    if block_given?
-      to_a.my_each { |el| count += 1 if yield(el) }
-    elsif !block_given? && my_arg.nil?
-      count = to_a.size
+  def my_map(proc_block = nil)
+    return to_enum(:my_map) unless block_given?
+
+    new_arr = []
+
+    if proc_block.class == Proc and block_given?
+      my_each { |el| new_arr.push(proc_block.call(el)) }
     else
-      count = to_a.my_select { |el| el == my_arg }.size
+      my_each { |el| new_arr.push(yield(el)) }
     end
-    count
+
+    new_arr
   end
 
-  # my_map
-  def my_map(proc = nil)
-    return to_enum(:my_map) unless block_given? || proc
+  # ############################################################################
 
-    arr = []
-    if proc
-      my_each { |el| arr.push(proc.call(el)) }
+  # ***************************     my_inject     ******************************
+
+  # ############################################################################
+
+  def my_inject(arg = nil, symb = nil)
+    output = ''
+
+    to_a[0].class
+
+    if arg.class <= Symbol || (symb.class <= Symbol and arg) # checking if one of arguments is symbol
+
+      if symb.nil?
+
+        ind = 1
+        output = to_a[0]
+        while ind < to_a.length
+          output = output.send(arg, to_a[ind])
+          ind += 1
+        end
+      else
+        output = arg
+        my_each { |el| output = output.send(symb, el) }
+      end
+
+    elsif block_given?
+
+      if arg # checking if block has default value
+        output = arg
+        to_a.my_each { |el| output = yield(output, el) }
+      else
+
+        ind = 1
+        output = to_a[0]
+        while ind < to_a.length
+          output = yield(output, to_a[ind])
+          ind += 1
+        end
+      end
+
     else
-      my_each { |el| arr.push(yield(el)) }
-    end
-    arr
-  end
-
-  def my_inject(my_arg = nil, sym = nil)
-    if (my_arg.is_a?(Symbol) || my_arg.is_a?(String)) && (!my_arg.nil? && sym.nil?)
-      sym = my_arg
-      my_arg = nil
+      raise LocalJumpError, 'no block given'
     end
 
-    if !block_given? && !sym.nil?
-      my_each { |elt| my_arg = my_arg.nil? ? elt : my_arg.send(sym, elt) }
-    else
-      my_each { |elt| my_arg = my_arg.nil? ? elt : yield(my_arg, elt) }
-    end
-    my_arg
+    output
   end
 end
+
+# ############################################################################
+
+# ***************************     multiply_els    ****************************
+
+# ############################################################################
 
 def multiply_els(arr)
-  arr.my_inject { |acc, cn| acc * cn }
+  arr.my_inject(1) { |acc, sum| acc * sum }
 end
-
-# rubocop:enable Metrics/CyclomaticComplexity
-# rubocop:enable Metrics/PerceivedComplexity
