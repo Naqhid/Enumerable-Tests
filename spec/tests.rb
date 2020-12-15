@@ -2,7 +2,6 @@ require 'rspec'
 require '../enumerable_methods'
 require 'colorize'
 
-
 describe Enumerable do
   let(:array) { [1, 3, 5, 7] }
   let(:string_array) { %w[cat dog yam egg] }

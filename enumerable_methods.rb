@@ -48,7 +48,7 @@ module Enumerable
 
     filtered = []
 
-    if self.class == Hash
+    if instance_of?(Hash)
       filtered = {}
 
       my_each do |el|
@@ -77,12 +77,12 @@ module Enumerable
 
   # ############################################################################
 
-  def my_all?(arg = nil)
+  def my_all?(arg = nil, &block)
     output = false
 
     filtered_array = if !arg # no arguments
 
-                       block_given? ? my_select { |el| yield(el) } : my_select { |el| el }
+                       block_given? ? my_select(&block) : my_select { |el| el }
                      elsif arg.is_a?(Regexp)
 
                        my_select { |el| arg == el }
@@ -103,12 +103,12 @@ module Enumerable
 
   # ############################################################################
 
-  def my_any?(arg = nil)
+  def my_any?(arg = nil, &block)
     output = false
 
     filtered_array = if !arg # no arguments
 
-                       block_given? ? my_select { |el| yield(el) } : my_select { |el| el }
+                       block_given? ? my_select(&block) : my_select { |el| el }
                      elsif arg.is_a?(Regexp)
 
                        my_select { |el| arg == el }
@@ -129,12 +129,12 @@ module Enumerable
 
   # ############################################################################
 
-  def my_none?(arg = nil)
+  def my_none?(arg = nil, &block)
     output = false
 
     filtered_array = if !arg
 
-                       block_given? ? my_select { |el| yield(el) } : my_select { |el| el }
+                       block_given? ? my_select(&block) : my_select { |el| el }
                      elsif arg.is_a?(Regexp)
 
                        my_select { |el| arg == el }
@@ -182,7 +182,7 @@ module Enumerable
 
     new_arr = []
 
-    if proc_block.class == Proc and block_given?
+    if proc_block.instance_of?(Proc) and block_given?
       my_each { |el| new_arr.push(proc_block.call(el)) }
     else
       my_each { |el| new_arr.push(yield(el)) }
@@ -244,7 +244,7 @@ end
 
 # ***************************     multiply_els    ****************************
 
-# ############################################################################
+# #############################################################################
 
 def multiply_els(arr)
   arr.my_inject(1) { |acc, sum| acc * sum }
