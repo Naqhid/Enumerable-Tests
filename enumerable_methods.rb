@@ -1,3 +1,5 @@
+# rubocop:disable Metrics/CyclomaticComplexity
+# rubocop:disable Metrics/PerceivedComplexity
 module Enumerable
   # ############################################################################
 
@@ -197,46 +199,18 @@ module Enumerable
 
   # ############################################################################
 
-  def my_inject(arg = nil, symb = nil)
-    output = ''
-
-    to_a[0].class
-
-    if arg.class <= Symbol || (symb.class <= Symbol and arg) # checking if one of arguments is symbol
-
-      if symb.nil?
-
-        ind = 1
-        output = to_a[0]
-        while ind < to_a.length
-          output = output.send(arg, to_a[ind])
-          ind += 1
-        end
-      else
-        output = arg
-        my_each { |el| output = output.send(symb, el) }
-      end
-
-    elsif block_given?
-
-      if arg # checking if block has default value
-        output = arg
-        to_a.my_each { |el| output = yield(output, el) }
-      else
-
-        ind = 1
-        output = to_a[0]
-        while ind < to_a.length
-          output = yield(output, to_a[ind])
-          ind += 1
-        end
-      end
-
-    else
-      raise LocalJumpError, 'no block given'
+  def my_inject(my_arg = nil, sym = nil)
+    if (my_arg.is_a?(Symbol) || my_arg.is_a?(String)) && (!my_arg.nil? && sym.nil?)
+      sym = my_arg
+      my_arg = nil
     end
 
-    output
+    if !block_given? && !sym.nil?
+      my_each { |elt| my_arg = my_arg.nil? ? elt : my_arg.send(sym, elt) }
+    else
+      my_each { |elt| my_arg = my_arg.nil? ? elt : yield(my_arg, elt) }
+    end
+    my_arg
   end
 end
 
