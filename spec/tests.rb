@@ -113,21 +113,23 @@ describe Enumerable do
     end
   end
 
-  describe '[my_inject tests] >'.bold.blue do
-    it 'my_inject block parsing.' do
-      expect(arr_in.my_inject { |i, j| i + j }).to eq(arr_in.inject { |i, j| i + j })
+  describe '#my_inject' do
+    it 'multiplies all elements in an array with each other' do
+      expect(array.my_inject(1) { |acc, sum| acc * sum }).to eql(105)
     end
-    it 'my_inject block parsing with parameter.' do
-      expect(arr_in.my_inject(10) { |i, j| i + j }).to eq(arr_in.inject(10) { |i, j| i + j })
+
+    it 'adds all elements in a range with each other' do
+      expect(range.my_inject { |acc, sum| acc + sum }).to eq(15)
     end
-    it 'my_inject symbol parsing without block.' do
-      expect(arr_in.my_inject(:*)).to eq(arr_in.inject(:*))
+  end
+
+  describe '#multiply_els' do
+    it 'multiplies all elements in an range with each other' do
+      expect(multiply_els(range)).to eql(120)
     end
-    it 'my_inject range & multi arguments parsing without block.' do
-      expect(enum_in.my_inject(10, :*)).to eq(enum_in.inject(10, :*))
-    end
-    it 'my_inject range & block parsing.' do
-      expect(enum_in.my_inject(4) { |prod, n| prod * n }).to eq(enum_in.inject(4) { |prod, n| prod * n })
+
+    it 'multiplies all elements in an array with each other' do
+      expect(multiply_els(array)).to eql(105)
     end
   end
 end

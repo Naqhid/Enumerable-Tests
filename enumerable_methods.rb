@@ -1,6 +1,7 @@
 # rubocop:disable Metrics/CyclomaticComplexity
 # rubocop:disable Metrics/PerceivedComplexity
 # rubocop:disable Metrics/ModuleLength
+# rubocop: disable Metrics/MethodLength
 module Enumerable
   # ############################################################################
 
@@ -170,24 +171,53 @@ module Enumerable
   # ***************************     my_inject     ******************************
 
   # ############################################################################
-  def my_inject(my_arg = nil, sym = nil)
-    if (my_arg.is_a?(Symbol) || my_arg.is_a?(String)) && (!my_arg.nil? && sym.nil?)
-      sym = my_arg
-      my_arg = nil
-    end
-    if !block_given? && !sym.nil?
-      my_each { |elt| my_arg = my_arg.nil? ? elt : my_arg.send(sym, elt) }
+
+  def my_inject(arg = nil, symb = nil)
+    output = ''
+    to_a[0].class
+    if arg.class <= Symbol || (symb.class <= Symbol and arg) # checking if one of arguments is symbol
+
+      if symb.nil?
+        ind = 1
+        output = to_a[0]
+        while ind < to_a.length
+          output = output.send(arg, to_a[ind])
+          ind += 1
+        end
+      else
+        output = arg
+        my_each { |el| output = output.send(symb, el) }
+      end
+    elsif block_given?
+      if arg # checking if block has default value
+        output = arg
+        to_a.my_each { |el| output = yield(output, el) }
+      else
+        ind = 1
+        output = to_a[0]
+        while ind < to_a.length
+          output = yield(output, to_a[ind])
+          ind += 1
+        end
+      end
     else
-      my_each { |elt| my_arg = my_arg.nil? ? elt : yield(my_arg, elt) }
+      raise LocalJumpError, 'no block given'
     end
-    my_arg
+    output
   end
 end
 
+# ############################################################################
+
+# ***************************     multiply_els    ****************************
+
+# ############################################################################
+
 def multiply_els(arr)
-  arr.my_inject { |acc, cn| acc * cn }
+  arr.my_inject(1) { |acc, sum| acc * sum }
 end
 
 # rubocop:enable Metrics/CyclomaticComplexity
 # rubocop:enable Metrics/PerceivedComplexity
 # rubocop:enable Metrics/ModuleLength
+# rubocop:enable Metrics/MethodLength
