@@ -1,7 +1,6 @@
 require 'rspec'
 require_relative '../enumerable_methods'
 
-
 describe Enumerable do
   let(:array) { [1, 3, 5, 7] }
   let(:string_array) { %w[cat dog yam egg] }
