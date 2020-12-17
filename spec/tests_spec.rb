@@ -1,6 +1,6 @@
 require 'rspec'
-require '../enumerable_methods'
-require 'colorize'
+require_relative '../enumerable_methods'
+
 
 describe Enumerable do
   let(:array) { [1, 3, 5, 7] }
