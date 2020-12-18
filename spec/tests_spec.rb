@@ -91,7 +91,7 @@ describe Enumerable do
       expect(array.my_count).to eq(4)
     end
 
-    it 'Returns number of element divisble by 2' do
+    it 'Returns number of element divisible by 2' do
       result = array.my_count(&:even?)
       expect(result).to eq(0)
     end
