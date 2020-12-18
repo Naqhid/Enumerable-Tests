@@ -11,19 +11,11 @@
 
 ## Getting Started
 
-To get a local copy up and running follow these simple steps.
+To get a local copy of the repository please run the following commands on your terminal:
 
-1. If you're running the Windows Operating System, open your command prompt. On Linux, Open your terminal.
-
-2. Copy and paste the following code into the Terminal:
-
-   `https://github.com/Naqhid/Enumerable-Tests`
-
-3. Press Enter.
-
-4. Once the repository has been cloned, navigate inside the repository and type: bin/main This will run the game and you will be able to play it using the terminal.
-
-5. Enjoy
+1. git clone https://github.com/Naqhid/Enumerable-Tests
+2. cd into above cloned directory
+3. run ruby main.rb
 
 ## Show your support
 
